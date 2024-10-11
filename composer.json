@@ -1,0 +1,19 @@
+{
+    "name": "apiphp/framework",
+    "description": "The updateable classes of the API.php framework.",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "ApiPHP\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jarkó Richárd",
+            "email": "jarkoricsi16@gmail.com"
+        }
+    ],
+    "require": {
+        "sosoricsi/jwt": "^1.1"
+    }
+}

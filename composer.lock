@@ -1,0 +1,56 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "f13a1488610d90c332aa953aca2157c9",
+    "packages": [
+        {
+            "name": "sosoricsi/jwt",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SosoRicsi/JWT.git",
+                "reference": "09a3ec682f1c73fbc5ccf9665e5a17b40bac0534"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SosoRicsi/JWT/zipball/09a3ec682f1c73fbc5ccf9665e5a17b40bac0534",
+                "reference": "09a3ec682f1c73fbc5ccf9665e5a17b40bac0534",
+                "shasum": ""
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "SosoRicsi\\JWT\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jarkó Richárd",
+                    "email": "jarkoricsi16@gmail.com"
+                }
+            ],
+            "description": "A JWT system with php.",
+            "support": {
+                "issues": "https://github.com/SosoRicsi/JWT/issues",
+                "source": "https://github.com/SosoRicsi/JWT/tree/1.1.0"
+            },
+            "time": "2024-10-11T03:30:22+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}
