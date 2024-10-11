@@ -9,116 +9,110 @@ use ApiPHP\Http\Exceptions\InvalidArgumentException;
 use ApiPHP\Http\Exceptions\InvalidFormatException;
 
 /**
- * The Request class handles incoming HTTP requests.
- * It provides utility methods to retrieve request method, URI, headers, and body.
+ * The Request class handles the incoming HTTP request.
+ * It provides utility methods to retrieve the request method, URI, headers, and body.
  */
 class Request
 {
+	/** @var string $method The HTTP method (e.g., GET, POST) used in the request. */
+	protected string $method;
 
-	/** HTTP method constants */
-	public const GET = 'GET';
-	public const POST = 'POST';
-	public const HEAD = 'HEAD';
-	public const PUT = 'PUT';
-	public const PATCH = 'PATCH';
-	public const DELETE = 'DELETE';
-	public const OPTIONS = 'OPTIONS';
+	/** @var string $uri The URI of the current request. */
+	protected string $uri;
+
+	/** @var array $headers Associative array of HTTP headers from the request. */
+	protected array $headers;
+
+	/** @var mixed $body The raw request body, as a string. */
+	protected mixed $body;
+
+	/**
+	 * Constructor for the Request class.
+	 * Initializes the request method, URI, headers, and body from the incoming HTTP request.
+	 */
+	public function __construct()
+	{
+		// Set the HTTP method (default: GET if not present)
+		$this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+		// Set the requested URI (default: '/' if not present)
+		$this->uri = $_SERVER['REQUEST_URI'] ?? '/';
+
+		// Get all headers from the request
+		$this->headers = getallheaders();
+
+		// Get the raw request body
+		$this->body = file_get_contents('php://input');
+	}
 
 	/**
 	 * Retrieves the HTTP request method (GET, POST, etc.).
-	 * 
-	 * @return string The HTTP method used in the request. Defaults to 'GET' if not set.
+	 *
+	 * @return string The HTTP method used in the request.
 	 */
-	public static function getMethod(): string
+	public function getMethod(): string
 	{
-		return $_SERVER['REQUEST_METHOD'] ?? self::GET;
+		return $this->method;
 	}
 
 	/**
 	 * Retrieves the requested URI.
-	 * 
+	 *
 	 * @return string The URI of the current request.
 	 */
-	public static function getUri(): string
+	public function getUri(): string
 	{
-		return $_SERVER['REQUEST_URI'];
+		return $this->uri;
 	}
 
 	/**
 	 * Retrieves all HTTP headers from the request.
-	 * 
+	 *
 	 * @return array An associative array of request headers.
 	 */
-	public static function getHeaders(): array
+	public function getHeaders(): array
 	{
-		return getallheaders();
+		return $this->headers;
 	}
 
 	/**
 	 * Retrieves a specific HTTP header by key.
-	 * 
+	 *
 	 * @param string $key The name of the header to retrieve.
 	 * @param mixed $default The default value to return if the header is not found.
-	 * 
-	 * @return mixed The value of the header, or the default value if not present.
+	 *
+	 * @return mixed The value of the header, or the default value if not found.
 	 */
-	public static function getHeader(string $key, mixed $default = null): mixed
+	public function getHeader(string $key, mixed $default = null): mixed
 	{
-		$headers = self::getHeaders();
-		return $headers[$key] ?? $default;
+		return $this->headers[$key] ?? $default;
 	}
 
 	/**
 	 * Retrieves the raw request body and decodes it as JSON.
-	 * 
-	 * @return array The decoded JSON body as an associative array.
+	 * This method is useful for processing JSON payloads sent in the request body.
+	 *
+	 * @return mixed The decoded JSON body as an associative array, or null if not JSON.
 	 */
-	public static function getBody(): array
+	public function getBody(): mixed
 	{
-		return json_decode(file_get_contents('php://input'), true);
+		return json_decode($this->body, true);
 	}
 
 	/**
-	 * Checks if the request method matches the provided key.
-	 * Optionally, executes the $true callback if the method matches, or the $else callback if it does not.
-	 * 
-	 * @param string $key The HTTP method to check (GET, POST, etc.).
-	 * @param callable|null $true The callback to execute if the method matches (optional).
-	 * @param callable|null $else The callback to execute if the method does not match (optional).
-	 * 
-	 * @return bool|callable Returns true if the method matches, false otherwise.
-	 * Executes the corresponding callback if provided.
-	 * 
-	 * @throws InvalidArgumentException If the provided callbacks are not callable.
-	 */
-	public static function isMethod(string $key, callable $true = null, callable $else = null): bool|callable
-	{
-		$isMethod = self::getMethod() === $key;
-
-		if ($isMethod && $true) {
-			is_callable($true) ? $true() : throw new InvalidArgumentException("The given [true] method is not callable!");;
-		}
-
-		if (!$isMethod && $else) {
-			is_callable($else) ? $else() : throw new InvalidArgumentException("The given [true] method is not callable!");;
-		}
-
-		return $isMethod;
-	}
-
-	/**
-	 * Retrieves the raw request body and decodes it as JSON.
-	 * Throws an exception if the JSON is invalid.
-	 * 
+	 * Retrieves and validates the raw request body as JSON.
+	 * Throws an exception if the body is not valid JSON.
+	 *
 	 * @return array The decoded JSON body as an associative array.
-	 * 
-	 * @throws Exception If the JSON is invalid or cannot be decoded.
+	 *
+	 * @throws InvalidFormatException If the body is not valid JSON.
 	 */
-	public static function getJsonBody(): array
+	public function getJsonBody(): array
 	{
-		$body = file_get_contents('php://input');
-		$data = json_decode($body, true);
+		// Decode the request body as JSON
+		$data = json_decode($this->body, true);
 
+		// Check for JSON decoding errors
 		if (json_last_error() !== JSON_ERROR_NONE) {
 			throw new InvalidFormatException("Invalid JSON format!");
 		}
@@ -127,34 +121,70 @@ class Request
 	}
 
 	/**
+	 * Checks if the request method matches the provided key (e.g., GET, POST).
+	 * Optionally, executes callbacks if the method matches or does not match.
+	 *
+	 * @param string $key The HTTP method to check (e.g., GET, POST).
+	 * @param callable|null $true Callback to execute if the method matches (optional).
+	 * @param callable|null $else Callback to execute if the method does not match (optional).
+	 *
+	 * @return bool True if the method matches, false otherwise.
+	 *
+	 * @throws InvalidArgumentException If the provided callbacks are not callable.
+	 */
+	public function isMethod(string $key, callable $true = null, callable $else = null): bool
+	{
+		// Check if the current request method matches the given key
+		$isMethod = $this->method === $key;
+
+		// If the method matches and a valid "true" callback is provided, execute it
+		if ($isMethod && $true) {
+			if (!is_callable($true)) {
+				throw new InvalidArgumentException("The given [true] method is not callable!");
+			}
+			$true();
+		}
+
+		// If the method does not match and a valid "else" callback is provided, execute it
+		if (!$isMethod && $else) {
+			if (!is_callable($else)) {
+				throw new InvalidArgumentException("The given [else] method is not callable!");
+			}
+			$else();
+		}
+
+		return $isMethod;
+	}
+
+	/**
 	 * Checks if the Content-Type of the request matches the provided type.
-	 * 
+	 *
 	 * @param string $type The Content-Type to check (e.g., 'application/json').
-	 * 
+	 *
 	 * @return bool True if the Content-Type matches, false otherwise.
 	 */
-	public static function isContentType(string $type): bool
+	public function isContentType(string $type): bool
 	{
-		return self::getHeader('Content-Type') === $type;
+		return $this->getHeader('Content-Type') === $type;
 	}
 
 	/**
 	 * Checks if the Content-Type of the request is 'application/json'.
-	 * 
+	 *
 	 * @return bool True if the Content-Type is 'application/json', false otherwise.
 	 */
-	public static function isJSON(): bool
+	public function isJSON(): bool
 	{
-		return self::isContentType('application/json');
+		return $this->isContentType('application/json');
 	}
 
 	/**
 	 * Checks if the Content-Type of the request is 'multipart/form-data'.
-	 * 
+	 *
 	 * @return bool True if the Content-Type is 'multipart/form-data', false otherwise.
 	 */
-	public static function isFormData(): bool
+	public function isFormData(): bool
 	{
-		return self::isContentType('multipart/form-data');
+		return $this->isContentType('multipart/form-data');
 	}
 }
