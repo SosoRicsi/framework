@@ -151,6 +151,7 @@ class Request
 			if (!is_callable($true)) {
 				throw new InvalidArgumentException("The given [true] method is not callable!");
 			}
+			
 			$true();
 		}
 
