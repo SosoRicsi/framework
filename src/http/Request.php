@@ -94,8 +94,12 @@ class Request
 	 *
 	 * @return mixed The decoded JSON body as an associative array, or null if not JSON.
 	 */
-	public function getBody(): mixed
+	public function getBody(?string $key = null): mixed
 	{
+		if ($key != null) {
+			return json_decode($this->body, true)[$key];
+		}
+
 		return json_decode($this->body, true);
 	}
 
@@ -107,7 +111,7 @@ class Request
 	 *
 	 * @throws InvalidFormatException If the body is not valid JSON.
 	 */
-	public function getJsonBody(): array
+	public function getJsonBody(?string $key = null): array|string
 	{
 		// Decode the request body as JSON
 		$data = json_decode($this->body, true);
@@ -117,6 +121,11 @@ class Request
 			throw new InvalidFormatException("Invalid JSON format!");
 		}
 
+
+		if ($key != null) {
+			return $data[$key];
+		}
+		
 		return $data;
 	}
 
