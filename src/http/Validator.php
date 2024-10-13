@@ -121,7 +121,7 @@ class Validator
 	 * @param string $field The name of the field.
 	 * @param mixed $value The value of the field.
 	 * @param int $max The maximum allowed value.
-	 * @return bool
+	 * @return bool True if the value is under the maximum value.
 	 */
 	public function under(string $field, mixed $value, int $max): bool
 	{
