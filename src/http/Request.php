@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ApiPHP\Http;
 
-use Exception;
 use ApiPHP\Http\Exceptions\InvalidArgumentException;
 use ApiPHP\Http\Exceptions\InvalidFormatException;
+use ApiPHP\Http\Validator;
 
 /**
  * The Request class handles the incoming HTTP request.
@@ -25,6 +25,9 @@ class Request
 
 	/** @var mixed $body The raw request body, as a string. */
 	protected mixed $body;
+
+	/** @var array $validator_errors Contains the errors given by the validator. */
+	public array $validator_errors = [];
 
 	/**
 	 * Constructor for the Request class.
@@ -196,5 +199,25 @@ class Request
 	public function isFormData(): bool
 	{
 		return $this->isContentType('multipart/form-data');
+	}
+
+	/**
+	 * Validate the request with the given rules.
+	 * 
+	 * @param array $rules The validations rules.
+	 * @return mixed Return the validation error, or the validated data.
+	 */
+	public function validate(array $rules): mixed
+	{
+		$validator = new Validator();
+
+		$validate = $validator->validate($this->getBody(), $rules);
+
+		if (!empty($validator->hasErrors())) {
+			$this->validator_errors = $validator->getErrors();
+			return false;
+		}
+
+		return $validate;
 	}
 }
