@@ -13,6 +13,8 @@ class Validator
 	 */
 	protected array $errors = [];
 
+	/* -------------------------- strings -------------------------- */
+
 	/**
 	 * Validates that a field is not empty.
 	 *
@@ -24,8 +26,10 @@ class Validator
 	{
 		if (empty($value)) {
 			$this->addError($field, "The [{$field}] field is required.");
+			
 			return false;
 		}
+		
 		return true;
 	}
 
@@ -40,24 +44,10 @@ class Validator
 	{
 		if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
 			$this->addError($field, "The [{$field}] field must be a valid email address.");
+			
 			return false;
 		}
-		return true;
-	}
-
-	/**
-	 * Validates that a field contains a numeric value.
-	 *
-	 * @param string $field The name of the field.
-	 * @param mixed $value The value of the field.
-	 * @return bool True if the field contains a numeric value, otherwise false.
-	 */
-	public function numeric(string $field, mixed $value): bool
-	{
-		if (!is_numeric($value)) {
-			$this->addError($field, "The [{$field}] field must be a number.");
-			return false;
-		}
+		
 		return true;
 	}
 
@@ -72,47 +62,30 @@ class Validator
 	{
 		if (!is_string($value)) {
 			$this->addError($field, "The [{$field}] field must be a string.");
+			
 			return false;
 		}
+		
 		return true;
 	}
 
+	/* -------------------------- numeric -------------------------- */
+
 	/**
-	 * Validates that a field contains an array.
+	 * Validates that a field contains a numeric value.
 	 *
 	 * @param string $field The name of the field.
 	 * @param mixed $value The value of the field.
-	 * @return bool True if the field contains an array, otherwise false.
+	 * @return bool True if the field contains a numeric value, otherwise false.
 	 */
-	public function array(string $field, mixed $value): bool
+	public function numeric(string $field, mixed $value): bool
 	{
-		if (!is_array($value)) {
-			$this->addError($field, "The [{$field}] field must be an array.");
+		if (!is_numeric($value)) {
+			$this->addError($field, "The [{$field}] field must be a number.");
+			
 			return false;
 		}
-		return true;
-	}
-
-	/**
-	 * Validates that a value is contained in an array.
-	 *
-	 * @param string $field The name of the field.
-	 * @param mixed $value The value to check.
-	 * @param array $array The array to check against.
-	 * @return bool True if the value is in the array, otherwise false.
-	 */
-	public function array_contains(string $field, mixed $value, array $array): bool
-	{
-		if (!isset($value) || empty($value)) {
-			$this->addError($field, "The [{$field}] can't be empty!");
-			return false;
-		}
-
-		if (!in_array($value, $array)) {
-			$this->addError($field, "The [{$value}] element is not in the [{$array}] array.");
-			return false;
-		}
-
+		
 		return true;
 	}
 
@@ -127,10 +100,109 @@ class Validator
 	 */
 	public function between(string $field, mixed $value, int $min, int $max): bool
 	{
-		if (!is_numeric($value) || $value < $min || $value > $max) {
-			$this->addError($field, "The [{$field}] field must be between {$min} and {$max}.");
+		if (!is_numeric($value)) {
+			$this->addError($field, "The [{$field}] field must be a numeric value.");
+			
 			return false;
 		}
+
+		if ($value < $min || $value > $max) {
+			$this->addError($field, "The [{$field}] field must be between {$min} and {$max}.");
+			
+			return false;
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Validates if the fields value is under the maximum value.
+	 * 
+	 * @param string $field The name of the field.
+	 * @param mixed $value The value of the field.
+	 * @param int $max The maximum allowed value.
+	 * @return bool
+	 */
+	public function under(string $field, mixed $value, int $max): bool
+	{
+		if (!is_numeric($value)) {
+			$this->addError($field, "The [{$field}] field must be a numeric value.");
+			
+			return false;
+		}
+
+		if ($value > $max) {
+			$this->addError($field, "The [{$field}] field must be under [{$max}].");
+			
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validate if the fields value is bigger than the maximum valu.
+	 * 
+	 * @param string $field The name of the field.
+	 * @param mixed $value The value of the field.
+	 * @param int $min The minimum value of the field.
+	 * @return bool
+	 */
+	public function upper(string $field, mixed $value, int $min): bool
+	{
+		if (!is_numeric($value)) {
+			$this->addError($field, "The [{$field}] field must be a numeric value.");
+			
+			return false;
+		}
+
+		if ($value < $min) {
+			$this->addError($field, "The [{$field}] field must be bigger than [{$min}].");
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/* -------------------------- dates -------------------------- */
+
+	/* -------------------------- arrays -------------------------- */
+
+	/**
+	 * Validates that a field contains an array.
+	 *
+	 * @param string $field The name of the field.
+	 * @param mixed $value The value of the field.
+	 * @return bool True if the field contains an array, otherwise false.
+	 */
+	public function array(string $field, mixed $value): bool
+	{
+		if (!is_array($value)) {
+			$this->addError($field, "The [{$field}] field must be an array.");
+			
+			return false;
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Validates that a value is contained in an array.
+	 *
+	 * @param string $field The name of the field.
+	 * @param mixed $value The value to check.
+	 * @param array $array The array to check against.
+	 * @return bool True if the value is in the array, otherwise false.
+	 */
+	public function array_contains(string $field, mixed $value, array $array): bool
+	{
+		if (!in_array($value, $array)) {
+			$this->addError($field, "The [{$value}] element is not in the [{$array}] array.");
+			
+			return false;
+		}
+
 		return true;
 	}
 
