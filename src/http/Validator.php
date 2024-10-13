@@ -40,8 +40,14 @@ class Validator
 	 * @param string $value The value of the field.
 	 * @return bool True if the field is a valid email address, otherwise false.
 	 */
-	public function email(string $field, string $value): bool
+	public function email(string $field, mixed $value): bool
 	{
+		if (!is_string($value)) {
+			$this->addError($field, "The [{$field}] field must be a string.");
+
+			return false;
+		}
+
 		if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
 			$this->addError($field, "The [{$field}] field must be a valid email address.");
 
@@ -302,9 +308,7 @@ class Validator
 
 			foreach ($ruleSet as $rule) {
 				if (is_string($rule)) {
-					if (!$this->$rule($field, $value)) {
-						break; // Skip to the next field if validation fails.
-					}
+					$this->$rule($field, $value);
 				} elseif (is_array($rule)) {
 					// Handle rules with parameters.
 					$ruleName = $rule[0];
