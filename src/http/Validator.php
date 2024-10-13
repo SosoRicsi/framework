@@ -77,7 +77,7 @@ class Validator
 	 * @param int $min The minimum lenght of the field.
 	 * @return bool True if the fields value is bigger than the minimum, otherwise false.
 	 */
-	public  function min_char(string $field, mixed $value, int $min): bool
+	public  function min_len(string $field, mixed $value, int $min): bool
 	{
 		if (!is_string($value)) {
 			$this->addError($field, "The [{$field}] field must be a string.");
@@ -102,7 +102,7 @@ class Validator
 	 * @param int $max The maximum lenght of the field.
 	 * @return bool True if the fields value is smaller than the minimum, otherwise false.
 	 */
-	public function max_char(string $field, mixed $value, int $max): bool
+	public function max_len(string $field, mixed $value, int $max): bool
 	{
 		if (!is_string($value)) {
 			$this->addError($field, "The [{$field}] field must be a string.");
