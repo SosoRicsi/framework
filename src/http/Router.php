@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace ApiPHP\Http;
 
@@ -137,13 +139,20 @@ class Router
 	/**
 	 *| Resolve dependencies for the handler.
 	 */
-	private function resolveDependencies(array $params, callable $handler): array
+	private function resolveDependencies(array $params, mixed $handler): array
 	{
 		$dependencies = [];
 
-		$reflection = is_array($handler)
-			? new ReflectionMethod($handler[0], $handler[1])
-			: new ReflectionFunction($handler);
+		// Check if the handler is an array (class method reference)
+		if (is_array($handler) && isset($handler[0], $handler[1])) {
+			// Assuming handler is [Class, Method]
+			$reflection = new ReflectionMethod($handler[0], $handler[1]);
+		} elseif ($handler instanceof Closure || is_string($handler)) {
+			// For closures and function names
+			$reflection = new ReflectionFunction($handler);
+		} else {
+			throw new \InvalidArgumentException('Invalid handler type.');
+		}
 
 		foreach ($reflection->getParameters() as $parameter) {
 			$paramName = $parameter->getName();
@@ -167,6 +176,8 @@ class Router
 
 		return $dependencies;
 	}
+
+
 
 	/**
 	 *| Run the router.
