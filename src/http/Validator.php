@@ -83,7 +83,7 @@ class Validator
 	 * @param int $min The minimum lenght of the field.
 	 * @return bool True if the fields value is bigger than the minimum, otherwise false.
 	 */
-	public  function min_len(string $field, mixed $value, int $min): bool
+	public  function min(string $field, mixed $value, int $min): bool
 	{
 		if (!is_string($value)) {
 			$this->addError($field, "The [{$field}] field must be a string.");
@@ -108,7 +108,7 @@ class Validator
 	 * @param int $max The maximum lenght of the field.
 	 * @return bool True if the fields value is smaller than the minimum, otherwise false.
 	 */
-	public function max_len(string $field, mixed $value, int $max): bool
+	public function max(string $field, mixed $value, int $max): bool
 	{
 		if (!is_string($value)) {
 			$this->addError($field, "The [{$field}] field must be a string.");
@@ -125,6 +125,7 @@ class Validator
 		return true;
 	}
 
+
 	/* -------------------------- numeric -------------------------- */
 
 	/**
@@ -138,32 +139,6 @@ class Validator
 	{
 		if (!is_numeric($value)) {
 			$this->addError($field, "The [{$field}] field must be a number.");
-
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Validates that a numeric value falls within a specified range.
-	 *
-	 * @param string $field The name of the field.
-	 * @param mixed $value The value of the field.
-	 * @param int $min The minimum allowed value.
-	 * @param int $max The maximum allowed value.
-	 * @return bool True if the value is within the range, otherwise false.
-	 */
-	public function between(string $field, mixed $value, int $min, int $max): bool
-	{
-		if (!is_numeric($value)) {
-			$this->addError($field, "The [{$field}] field must be a numeric value.");
-
-			return false;
-		}
-
-		if ($value < $min || $value > $max) {
-			$this->addError($field, "The [{$field}] field must be between {$min} and {$max}.");
 
 			return false;
 		}
@@ -219,6 +194,48 @@ class Validator
 		}
 
 		return true;
+	}
+
+	/* -------------------------- unisex -------------------------- */
+
+	/**
+	 * Validates that a numeric value falls within a specified range.
+	 *
+	 * @param string $field The name of the field.
+	 * @param mixed $value The value of the field.
+	 * @param int $min The minimum allowed value.
+	 * @param int $max The maximum allowed value.
+	 * @return bool True if the value is within the range, otherwise false.
+	 */
+	public function between(string $field, mixed $value, int $min, int $max): bool
+	{
+		if (is_numeric($value)) {
+			if ($value < $min || $value > $max) {
+				$this->addError($field, "The [{$field}] field must be between {$min} and {$max}.");
+
+				return false;
+			}
+
+			return true;
+		} else if (is_string($value)) {
+			if (strlen($value) < $min) {
+				$this->addError($field, "The [{$field}] field has a minimum value of {$min}.");
+
+				return false;
+			}
+
+			if (strlen($value) > $max) {
+				$this->addError($field, "The [{$field}] field has a maximum value of {$max}.");
+
+				return false;
+			}
+
+			return true;
+		}
+
+		$this->addError($field, "The [{$field}] field has to be a string, or a numeric!");
+
+		return false;
 	}
 
 	/* -------------------------- dates -------------------------- */
