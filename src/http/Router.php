@@ -14,6 +14,7 @@ class Router
 	private $notFoundHandler = null;
 	private string $currentGroupPrefix = '';
 	private array $currentGroupMiddleware = [];
+	private string $version = "";
 
 	// HTTP Methods
 	private const METHOD_GET = 'GET';
@@ -78,7 +79,7 @@ class Router
 	/**
 	 *| Group routes with a prefix and middleware.
 	 */
-	public function group(string $prefix, array $middleware, Closure $callback): void
+	public function group(string $prefix, Closure $callback, array $middleware = []): void
 	{
 		$previousPrefix = $this->currentGroupPrefix;
 		$previousMiddleware = $this->currentGroupMiddleware;
@@ -89,6 +90,25 @@ class Router
 		$callback($this);
 
 		// Restore previous group settings
+		$this->currentGroupPrefix = $previousPrefix;
+		$this->currentGroupMiddleware = $previousMiddleware;
+	}
+
+	public function version(string $version, Closure $callback, array $middleware = [], string $prefix = ''): void
+	{
+		$previousPrefix = $this->currentGroupPrefix;
+		$previousMiddleware = $this->currentGroupMiddleware;
+
+		if (!empty($prefix)) {
+			$this->currentGroupPrefix = $prefix;
+		} else {
+			$this->currentGroupPrefix = "/api/v{$version}";
+		}
+
+		$this->currentGroupMiddleware = array_merge($this->currentGroupMiddleware, $middleware);
+		
+		$callback($this);
+
 		$this->currentGroupPrefix = $previousPrefix;
 		$this->currentGroupMiddleware = $previousMiddleware;
 	}
@@ -177,7 +197,26 @@ class Router
 		return $dependencies;
 	}
 
+	public function info(): void
+	{
+		$has404Handler = $this->notFoundHandler ? "true" : "false";
+		$methodsCount = ['GET' => 0, 'POST' => 0, 'PUT' => 0, 'PATCH' => 0, 'DELETE' => 0, 'OPTIONS' => 0, 'HEAD' => 0];
+		$version = !empty($this->version) ? $this->version : "N/A";
 
+		foreach ($this->routes as $route) {
+			$methodsCount[$route['method']]++;
+		}
+
+		print "<pre>";
+		print "Routes count: ".count($this->routes)."\n";
+		print "Has 404 handler: {$has404Handler}\n";
+		print "Current app version: {$version}\n";
+		print "Counted methods: ";
+		print_r($methodsCount);
+		print "Routes: ";
+		print_r($this->routes);
+		print "</pre>";
+	}
 
 	/**
 	 *| Run the router.
