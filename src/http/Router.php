@@ -19,6 +19,8 @@ class Router
 	 */
 	private array $routes = [];
 
+	private array $errors = [];
+
 	/**
 	 * @var callable|null $notFoundHandler Handler for 404 Not Found response.
 	 */
@@ -48,6 +50,12 @@ class Router
 	private const METHOD_DELETE = 'DELETE';
 	private const METHOD_OPTIONS = 'OPTIONS';
 
+	/**
+	 * Set up the API's version. You can use it with the version() function.
+	 * 
+	 * @param string $version The version of the API.
+	 * @return void
+	 */
 	public function setVersion(?string $version = ""): void
 	{
 		$this->version = $version;
@@ -59,6 +67,7 @@ class Router
 	 * @param string $path The route path.
 	 * @param mixed $handler The handler (callback or class method) for the route.
 	 * @param array|null $middleware Optional middleware for the route.
+	 * @return void
 	 */
 	public function get(string $path, mixed $handler, ?array $middleware = null): void
 	{
@@ -71,6 +80,7 @@ class Router
 	 * @param string $path The route path.
 	 * @param mixed $handler The handler for the route.
 	 * @param array|null $middleware Optional middleware for the route.
+	 * @return void
 	 */
 	public function post(string $path, mixed $handler, ?array $middleware = null): void
 	{
@@ -83,6 +93,7 @@ class Router
 	 * @param string $path The route path.
 	 * @param mixed $handler The handler for the route.
 	 * @param array|null $middleware Optional middleware for the route.
+	 * @return void
 	 */
 	public function put(string $path, mixed $handler, ?array $middleware = null): void
 	{
@@ -95,6 +106,7 @@ class Router
 	 * @param string $path The route path.
 	 * @param mixed $handler The handler for the route.
 	 * @param array|null $middleware Optional middleware for the route.
+	 * @return void
 	 */
 	public function patch(string $path, mixed $handler, ?array $middleware = null): void
 	{
@@ -107,6 +119,7 @@ class Router
 	 * @param string $path The route path.
 	 * @param mixed $handler The handler for the route.
 	 * @param array|null $middleware Optional middleware for the route.
+	 * @return void
 	 */
 	public function delete(string $path, mixed $handler, ?array $middleware = null): void
 	{
@@ -119,6 +132,7 @@ class Router
 	 * @param string $path The route path.
 	 * @param mixed $handler The handler for the route.
 	 * @param array|null $middleware Optional middleware for the route.
+	 * @return void
 	 */
 	public function options(string $path, mixed $handler, ?array $middleware = null): void
 	{
@@ -130,6 +144,7 @@ class Router
 	 *
 	 * @param string $path The path to be redirected.
 	 * @param string $redirectTo The target path to redirect to.
+	 * @return void
 	 */
 	public function redirect(string $path, string $redirectTo): void
 	{
@@ -144,6 +159,7 @@ class Router
 	 * Set the handler for 404 Not Found responses.
 	 *
 	 * @param callable $handler The handler to be executed when no route matches the request.
+	 * @return void
 	 */
 	public function add404Handler(callable $handler): void
 	{
@@ -156,6 +172,7 @@ class Router
 	 * @param string $prefix The prefix to be applied to all routes in this group.
 	 * @param Closure $callback A closure where the grouped routes are defined.
 	 * @param array $middleware Optional middleware to apply to all routes in this group.
+	 * @return void
 	 */
 	public function group(string $prefix, Closure $callback, array $middleware = [], ?string $version = ''): void
 	{
@@ -179,6 +196,7 @@ class Router
 	 * @param Closure $callback A closure where the versioned routes are defined.
 	 * @param array $middleware Optional middleware for the versioned routes.
 	 * @param string $prefix Optional custom prefix for versioned routes. If not provided, it defaults to '/api/v{version}'.
+	 * @return void
 	 */
 	public function version(Closure $callback, array $middleware = [], ?string $prefix = '', ?string $version = ''): void
 	{
@@ -208,6 +226,7 @@ class Router
 	 * @param string $path The path for the route.
 	 * @param mixed $handler The handler (callback or class method) for the route.
 	 * @param array $middleware Optional middleware for the route.
+	 * @return void
 	 */
 	private function addRoute(string $method, string $path, mixed $handler, array $middleware = []): void
 	{
