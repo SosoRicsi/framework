@@ -22,11 +22,6 @@ class Router
 	private array $errors = [];
 
 	/**
-	 * @var callable|null $notFoundHandler Handler for 404 Not Found response.
-	 */
-	private $notFoundHandler = null;
-
-	/**
 	 * @var string $currentGroupPrefix Prefix for route groups, used for grouping related routes.
 	 */
 	private string $currentGroupPrefix = '';
@@ -153,17 +148,6 @@ class Router
 			exit();
 		};
 		$this->addRoute(self::METHOD_GET, $path, $handler);
-	}
-
-	/**
-	 * Set the handler for 404 Not Found responses.
-	 *
-	 * @param callable $handler The handler to be executed when no route matches the request.
-	 * @return void
-	 */
-	public function add404Handler(callable $handler): void
-	{
-		$this->notFoundHandler = $handler;
 	}
 
 	/**
@@ -321,12 +305,21 @@ class Router
 		return $dependencies;
 	}
 
+	public function errors(array $errors): void
+	{
+		foreach ($errors as $error) {
+			$this->errors[$error['error']] = [
+				'handler' => $error['handler']
+			];
+		}
+	}
+
 	/**
 	 * Output information about the current routes and handlers.
 	 */
-	public function info(?bool $showRoutes = false): void
+	public function info(?bool $showRoutes = false, ?bool $showErrorHandlers = false): void
 	{
-		$has404Handler = $this->notFoundHandler ? "true" : "false";
+		$has404Handler = array_key_exists('404', $this->errors) ? "true" : "false";
 		$methodsCount = ['GET' => 0, 'POST' => 0, 'PUT' => 0, 'PATCH' => 0, 'DELETE' => 0, 'OPTIONS' => 0, 'HEAD' => 0];
 		$version = !empty($this->version) ? $this->version : "N/A";
 
@@ -345,6 +338,10 @@ class Router
 		if ($showRoutes) {
 			print "Routes: ";
 			print_r($this->routes);
+		}
+		if ($showErrorHandlers) {
+			print "Error handlers: ";
+			print_r($this->errors);
 		}
 		print "</pre>";
 	}
@@ -393,10 +390,10 @@ class Router
 
 		// If no route matched, return a 404 response
 		header("HTTP/1.0 404 Not Found");
-		if ($this->notFoundHandler) {
-			call_user_func($this->notFoundHandler);
+		if (array_key_exists('404', $this->errors)) {
+			call_user_func($this->errors['404']['handler']);
 		} else {
-			echo '404 Not Found';
+			print "404 - Page Not Found!";
 		}
 	}
 }
