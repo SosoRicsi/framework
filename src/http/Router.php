@@ -19,6 +19,9 @@ class Router
 	 */
 	private array $routes = [];
 
+	/**
+	 * @var array $errors Array storing all the defined error handlers.
+	 */
 	private array $errors = [];
 
 	/**
@@ -305,6 +308,12 @@ class Router
 		return $dependencies;
 	}
 
+	/**
+	 * Set the error handlers that the user defines.
+	 * 
+	 * @param array $errors The array of the error handlers.
+	 * @return void
+	 */
 	public function errors(array $errors): void
 	{
 		foreach ($errors as $error) {
@@ -316,6 +325,10 @@ class Router
 
 	/**
 	 * Output information about the current routes and handlers.
+	 * 
+	 * @param bool $showRoutes Defines if show the defined routes, or not.
+	 * @param bool $showErrorHandlers Defines if show the defined error handlers, or not.
+	 * @return void
 	 */
 	public function info(?bool $showRoutes = false, ?bool $showErrorHandlers = false): void
 	{
